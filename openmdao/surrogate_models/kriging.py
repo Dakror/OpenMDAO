@@ -228,20 +228,20 @@ class KrigingSurrogate(SurrogateModel):
 
             with h5py.File(cache_output, 'a') as f:
                 g = f.create_group(name)
-                g.attrs['n_samples'] = self._n_samples
+                g.attrs['n_samples'] = self.n_samples
                 g.attrs['n_dims'] = self.n_dims
-                g.create_dataset('X', self.X)
-                g.create_dataset('Y', self.Y)
-                g.create_dataset('X_mean', self.X_mean)
-                g.create_dataset('Y_mean', self.Y_mean)
-                g.create_dataset('X_std', self.X_std)
-                g.create_dataset('Y_std', self.Y_std)
-                g.create_dataset('thetas', self.thetas)
-                g.create_dataset('alpha', self.alpha)
-                g.create_dataset('U', self.U)
-                g.create_dataset('S_inv', self.S_inv)
-                g.create_dataset('Vh', self.Vh)
-                g.create_dataset('sigma2', self.sigma2)
+                g.create_dataset('X', data=self.X)
+                g.create_dataset('Y', data=self.Y)
+                g.create_dataset('X_mean', data=self.X_mean)
+                g.create_dataset('Y_mean', data=self.Y_mean)
+                g.create_dataset('X_std', data=self.X_std)
+                g.create_dataset('Y_std', data=self.Y_std)
+                g.create_dataset('thetas', data=self.thetas)
+                g.create_dataset('alpha', data=self.alpha)
+                g.create_dataset('U', data=self.U)
+                g.create_dataset('S_inv', data=self.S_inv)
+                g.create_dataset('Vh', data=self.Vh)
+                g.create_dataset('sigma2', data=self.sigma2)
 
     def _calculate_reduced_likelihood_params(self, thetas=None):
         """
