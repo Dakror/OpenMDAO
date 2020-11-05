@@ -2,7 +2,7 @@
 import numpy as np
 import scipy.linalg as linalg
 from scipy.optimize import minimize
-import json
+import h5py
 import os
 
 from openmdao.surrogate_models.surrogate_model import SurrogateModel
@@ -218,40 +218,30 @@ class KrigingSurrogate(SurrogateModel):
         # Save data to cache if specified
         cache_output = self.options['training_cache_output']
         if cache_output:
-            data = {
-                'n_samples': self.n_samples,
-                'n_dims': self.n_dims,
-                'X': self.X.tolist(),
-                'Y': self.Y.tolist(),
-                'X_mean': self.X_mean.tolist(),
-                'Y_mean': self.Y_mean.tolist(),
-                'X_std': self.X_std.tolist(),
-                'Y_std': self.Y_std.tolist(),
-                'thetas': self.thetas.tolist(),
-                'alpha': self.alpha.tolist(),
-                'U': self.U.tolist(),
-                'S_inv': self.S_inv.tolist(),
-                'Vh': self.Vh.tolist(),
-                'sigma2': self.sigma2.tolist()
-            }
-
+            name = 'cache'
             if cache_id:
                 if cache_id in KrigingSurrogate._cache_output_identifiers:
                     raise ValueError(f'The KrigingSurrogate Cache ID "{cache_id}" '
                                      'is already being saved.')
-                KrigingSurrogate._cache_output_identifiers.add(cache_id)
 
-                # If a cache id is given we need to fetch the current data to merge
-                full_data = {}
-                if os.path.exists(cache_output) and os.path.getsize(cache_output) > 0:
-                    with open(cache_output, 'r') as fh:
-                        full_data = json.load(fh)
+                name = cache_id
 
-                full_data[cache_id] = data
-                data = full_data
-
-            with open(cache_output, 'w') as fh:
-                json.dump(data, fh)
+            with h5py.File(cache_output, 'a') as f:
+                g = f.create_group(name)
+                g.attrs['n_samples'] = self._n_samples
+                g.attrs['n_dims'] = self.n_dims
+                g.create_dataset('X', self.X)
+                g.create_dataset('Y', self.Y)
+                g.create_dataset('X_mean', self.X_mean)
+                g.create_dataset('Y_mean', self.Y_mean)
+                g.create_dataset('X_std', self.X_std)
+                g.create_dataset('Y_std', self.Y_std)
+                g.create_dataset('thetas', self.thetas)
+                g.create_dataset('alpha', self.alpha)
+                g.create_dataset('U', self.U)
+                g.create_dataset('S_inv', self.S_inv)
+                g.create_dataset('Vh', self.Vh)
+                g.create_dataset('sigma2', self.sigma2)
 
     def _calculate_reduced_likelihood_params(self, thetas=None):
         """

@@ -147,6 +147,7 @@ setup(
         'numpy',
         'pyDOE2',
         'pyparsing',
+        'h5py',
         'scipy',
         'requests'
     ],
